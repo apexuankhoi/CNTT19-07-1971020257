@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bài lab 17 - Giỏ hàng đơn giản</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4efe8;
+      --card: #ffffff;
+      --ink: #1c1a17;
+      --accent: #d7672c;
+      --accent-soft: #f4e1d2;
+      --line: #e8dfd7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Fraunces", "Georgia", serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 0%, #d8ecff, transparent 45%),
+        radial-gradient(circle at 90% 10%, #ffe7c8, transparent 45%),
+        var(--bg);
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      width: min(820px, 94vw);
+      background: var(--card);
+      border-radius: 26px;
+      padding: 28px 30px 32px;
+      box-shadow: 0 24px 50px rgba(28, 26, 23, 0.14);
+      animation: lift 520ms ease;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #5f5950;
+      font-size: 15px;
+    }
+
+    .pill {
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cart {
+      display: grid;
+      gap: 8px;
+    }
+
+    .cart-row {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr 1fr 0.9fr;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      align-items: center;
+    }
+
+    .cart-row.header {
+      font-weight: 600;
+      background: #f7f2ec;
+      color: #524b43;
+      border: 1px solid var(--line);
+    }
+
+    .cart-row.item {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      animation: slideIn 520ms ease both;
+    }
+
+    .cart-row.item:nth-of-type(2) {
+      animation-delay: 80ms;
+    }
+
+    .cart-row.item:nth-of-type(3) {
+      animation-delay: 160ms;
+    }
+
+    .qty-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .qty-btn {
+      border: 0;
+      background: var(--accent);
+      color: #ffffff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 150ms ease;
+    }
+
+    .qty-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .qty {
+      min-width: 24px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .total-bar {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: #f8f4ee;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      font-size: 18px;
+    }
+
+    .grand-total {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @keyframes lift {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .cart-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .cart-row.header {
+        display: none;
+      }
+
+      .cart-row.item {
+        padding: 14px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="card">
+      <div class="header">
+        <div>
+          <h1>Bài lab 17 - Giỏ hàng đơn giản</h1>
+          <p class="subtitle">Cập nhật số lượng và tổng tiền bằng jQuery</p>
+        </div>
+        <span id="item-count" class="pill">0 sản phẩm</span>
+      </div>
+
+      <div class="cart">
+        <div class="cart-row header">
+          <div>Sản phẩm</div>
+          <div>Đơn giá</div>
+          <div>Số lượng</div>
+          <div>Thành tiền</div>
+        </div>
+
+        <div class="cart-row item" data-price="120000">
+          <div>Sổ tay Campus</div>
+          <div class="price">0</div>
+          <div class="qty-controls">
+            <button class="qty-btn minus">-</button>
+            <span class="qty">1</span>
+            <button class="qty-btn plus">+</button>
+          </div>
+          <div class="line-total">0</div>
+        </div>
+
+        <div class="cart-row item" data-price="85000">
+          <div>Bộ bút gel</div>
+          <div class="price">0</div>
+          <div class="qty-controls">
+            <button class="qty-btn minus">-</button>
+            <span class="qty">1</span>
+            <button class="qty-btn plus">+</button>
+          </div>
+          <div class="line-total">0</div>
+        </div>
+      </div>
+
+      <div class="total-bar">
+        <span>Tổng cộng</span>
+        <span id="grand-total" class="grand-total">0</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    $(function() {
+      function formatMoney(value) {
+        return value.toLocaleString("vi-VN") + " đ";
+      }
+
+      function updateRow($row) {
+        const price = Number($row.data("price"));
+        const qty = Number($row.find(".qty").text());
+        $row.find(".price").text(formatMoney(price));
+        $row.find(".line-total").text(formatMoney(price * qty));
+      }
+
+      function updateTotal() {
+        let sum = 0;
+        $(".cart-row.item").each(function() {
+          const $row = $(this);
+          const price = Number($row.data("price"));
+          const qty = Number($row.find(".qty").text());
+          sum += price * qty;
+        });
+        $("#grand-total").text(formatMoney(sum));
+      }
+
+      $(".cart").on("click", ".qty-btn", function() {
+        const $row = $(this).closest(".cart-row.item");
+        let qty = Number($row.find(".qty").text());
+
+        if ($(this).hasClass("plus")) {
+          qty += 1;
+        } else {
+          qty -= 1;
+        }
+
+        if (qty < 1) {
+          qty = 1;
+        }
+
+        $row.find(".qty").text(qty);
+        updateRow($row);
+        updateTotal();
+      });
+
+      $(".cart-row.item").each(function() {
+        updateRow($(this));
+      });
+
+      $("#item-count").text($(".cart-row.item").length + " sản phẩm");
+      updateTotal();
+    });
+  </script>
+</body>
+</html>
