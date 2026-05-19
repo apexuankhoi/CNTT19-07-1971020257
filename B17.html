@@ -116,6 +116,22 @@
       gap: 10px;
     }
 
+    .product-cell {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .del-product {
+      padding:6px 8px;
+      border-radius:8px;
+      font-size:13px;
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--line);
+      cursor: pointer;
+    }
+
     .qty-btn {
       border: 0;
       background: var(--accent);
@@ -204,6 +220,12 @@
         <span id="item-count" class="pill">0 sản phẩm</span>
       </div>
 
+      <div style="margin-bottom:14px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <input id="new-name" type="text" placeholder="Tên sản phẩm" style="padding:8px 10px; border-radius:10px; border:1px solid var(--line); width:220px;">
+        <input id="new-price" type="number" placeholder="Đơn giá (đ)" style="padding:8px 10px; border-radius:10px; border:1px solid var(--line); width:160px;">
+        <button id="add-product" class="btn">Thêm sản phẩm</button>
+      </div>
+
       <div class="cart">
         <div class="cart-row header">
           <div>Sản phẩm</div>
@@ -213,7 +235,7 @@
         </div>
 
         <div class="cart-row item" data-price="120000">
-          <div>Sổ tay Campus</div>
+          <div class="product-cell"><span>Sổ tay Campus</span><button class="del-product">Xóa</button></div>
           <div class="price">0</div>
           <div class="qty-controls">
             <button class="qty-btn minus">-</button>
@@ -224,7 +246,7 @@
         </div>
 
         <div class="cart-row item" data-price="85000">
-          <div>Bộ bút gel</div>
+          <div class="product-cell"><span>Bộ bút gel</span><button class="del-product">Xóa</button></div>
           <div class="price">0</div>
           <div class="qty-controls">
             <button class="qty-btn minus">-</button>
@@ -267,6 +289,26 @@
         $("#grand-total").text(formatMoney(sum));
       }
 
+        function refreshItemCount() {
+          $("#item-count").text($(".cart-row.item").length + " sản phẩm");
+        }
+
+        function createCartRow(name, price) {
+          const $row = $(
+            '<div class="cart-row item" data-price="' + price + '">' +
+            '<div class="product-cell"><span>' + $('<div>').text(name).html() + '</span><button class="del-product">Xóa</button></div>' +
+            '<div class="price">0</div>' +
+            '<div class="qty-controls">' +
+              '<button class="qty-btn minus">-</button>' +
+              '<span class="qty">1</span>' +
+              '<button class="qty-btn plus">+</button>' +
+            '</div>' +
+            '<div class="line-total">0</div>' +
+            '</div>'
+          );
+          return $row;
+        }
+
       $(".cart").on("click", ".qty-btn", function() {
         const $row = $(this).closest(".cart-row.item");
         let qty = Number($row.find(".qty").text());
@@ -290,7 +332,30 @@
         updateRow($(this));
       });
 
-      $("#item-count").text($(".cart-row.item").length + " sản phẩm");
+      // handle delete product (delegated)
+      $(".cart").on("click", ".del-product", function() {
+        const $row = $(this).closest('.cart-row.item');
+        $row.slideUp(150, function() { $(this).remove(); updateTotal(); refreshItemCount(); });
+      });
+
+      // add new product
+      $("#add-product").on('click', function() {
+        const name = $("#new-name").val().trim();
+        const price = Number($("#new-price").val());
+        if (!name || !price || price <= 0) {
+          alert('Vui lòng nhập tên và đơn giá hợp lệ.');
+          return;
+        }
+        const $row = createCartRow(name, price);
+        $(".cart").append($row);
+        updateRow($row);
+        updateTotal();
+        refreshItemCount();
+        $("#new-name").val('');
+        $("#new-price").val('');
+      });
+
+      refreshItemCount();
       updateTotal();
     });
   </script>

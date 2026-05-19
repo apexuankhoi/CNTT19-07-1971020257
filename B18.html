@@ -211,11 +211,19 @@
       <div class="input-row">
         <input id="member-name" type="text" placeholder="Tên thành viên">
         <button id="add-member" class="btn">Thêm thành viên</button>
+        <input id="search-member" type="text" placeholder="Tìm theo tên hoặc số thứ tự" style="max-width:240px;">
       </div>
 
       <ul id="member-list" class="member-list"></ul>
 
       <p class="note">Tự động đánh số sau mỗi thao tác.</p>
+
+      <h3 style="margin-top:18px;">Yêu cầu mở rộng</h3>
+      <ul style="margin:8px 0 0 18px;color:#52606b;">
+        <li>Tìm kiếm thành viên theo <strong>tên</strong> (không phân biệt chữ hoa/thường).</li>
+        <li>Tìm nhanh theo <strong>số thứ tự</strong>: nhập một số để hiển thị thành viên tương ứng.</li>
+        <li>Đánh số (thứ tự) cập nhật chính xác với danh sách đang hiển thị.</li>
+      </ul>
     </section>
   </main>
 
@@ -225,9 +233,41 @@
       const $list = $("#member-list");
 
       function refreshIndexes() {
-        $list.children(".member-item").each(function(index) {
+        $list.children(".member-item:visible").each(function(index) {
           $(this).find(".member-index").text(index + 1 + ".");
         });
+      }
+
+      function applyFilter(query) {
+        const q = query.trim().toLowerCase();
+        if (!q) {
+          $list.children('.member-item').show();
+          refreshIndexes();
+          return;
+        }
+
+        // If query is a number, show the item at that 1-based index
+        if (/^\d+$/.test(q)) {
+          const idx = parseInt(q, 10);
+          $list.children('.member-item').hide();
+          const $target = $list.children('.member-item').eq(idx - 1);
+          if ($target.length) {
+            $target.show();
+          }
+          refreshIndexes();
+          return;
+        }
+
+        // Otherwise treat as substring search on name
+        $list.children('.member-item').each(function() {
+          const name = $(this).find('.member-name').text().toLowerCase();
+          if (name.indexOf(q) !== -1) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        });
+        refreshIndexes();
       }
 
       function createMemberItem(name) {
@@ -271,6 +311,10 @@
         if (event.key === "Enter") {
           $("#add-member").click();
         }
+      });
+
+      $("#search-member").on('input', function() {
+        applyFilter($(this).val());
       });
 
       $list.on("click", ".edit-btn", function() {
